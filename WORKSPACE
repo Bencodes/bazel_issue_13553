@@ -18,7 +18,13 @@ http_archive(
 
 load("@rules_jvm_external//:defs.bzl", "maven_install")
 
+overridden_targets = {
+    # Override the maven dep with the fixed target
+    "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm": "@//:kotlinx_coroutines_core_jvm_fixed",
+}
+
 maven_install(
+    override_targets = overridden_targets,
     artifacts = [
         "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:jar:1.5.0",
     ],
@@ -28,6 +34,14 @@ maven_install(
     ],
 )
 
+# Create a second maven repository that downloads the original kotlinx-coroutines-core-jvm
+# jar. This will be used to override the root @maven target with the hacked
+# version compiled against the neverlink sun dependencies.
+maven_install(
+    name = "kotlinx_coroutines_core_fixed",
+    artifacts = ["org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:jar:1.5.0"],
+    repositories = ["https://repo1.maven.org/maven2"],
+)
 
 ## Android
 
